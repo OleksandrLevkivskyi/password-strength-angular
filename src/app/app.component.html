@@ -1,37 +1,4 @@
 <form [formGroup]="passwordForm">
-  <label for="password">Check Password Strength</label>
-  <input
-    type="password"
-    id="password"
-    formControlName="password"
-    autocomplete="none"
-    placeholder="Password"
-  />
-
-  <div>
-    <div
-      class="strength-section"
-      [ngClass]="{
-        weak: isErrorExist('weak'),
-        medium: isErrorExist('medium'),
-        strong: isErrorExist('strong')
-      }"
-    ></div>
-    <div
-      class="strength-section"
-      [ngClass]="{
-        weak: isErrorExist('weak') && passwordLength < 8,
-        medium: isErrorExist('medium'),
-        strong: isErrorExist('strong')
-      }"
-    ></div>
-    <div
-      class="strength-section"
-      [ngClass]="{
-        weak: isErrorExist('weak') && passwordLength < 8,
-        strong: isErrorExist('strong')
-      }"
-    ></div>
-  </div>
-  
+  <app-password-input [formControl]="passwordFormControl"></app-password-input>
+  <app-password-strength [password]="passwordFormControl.value"></app-password-strength>
 </form>

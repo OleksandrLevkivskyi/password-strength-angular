@@ -4,61 +4,32 @@ import {
   FormBuilder,
   ReactiveFormsModule,
   FormControl,
-  ValidationErrors,
   Validators
 } from '@angular/forms';
 
+import { PasswordStrengthComponent } from "./password-strength/password-strength.component";
+import { PasswordInputComponent } from "./password-input/password-input.component";
+import { PasswordStrengthService } from './password-strength.service';
+
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    standalone: true,
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    imports: [CommonModule, ReactiveFormsModule, PasswordStrengthComponent, PasswordInputComponent]
 })
 export class AppComponent {
   passwordForm = this.formBuilder.group({
-    password: ['', [Validators.required, this.passwordStrengthValidator()]],
+    password: [{value: ''}, [Validators.required, this.passwordStrengthValidator()]],
   });
+  passwordFormControl: FormControl = new FormControl('', {nonNullable: true})
 
-  get passwordErrors(): ValidationErrors {
-    return this.passwordForm.controls.password?.errors ?? {};
-  }
-
-  get passwordLength(): number {
-    return this.passwordForm.controls.password.value !== null
-      ? this.passwordForm.controls.password.value.length
-      : 0;
-  }
-  constructor(public formBuilder: FormBuilder) {}
-
-  isErrorExist(errorType: string) {
-    return (
-      Object.keys(this.passwordErrors).includes('strength') &&
-      this.passwordErrors['strength'] === errorType
-    );
-  }
+  constructor(public formBuilder: FormBuilder, private passwordStrengthService:PasswordStrengthService) {}
 
   passwordStrengthValidator() {
     return (control: FormControl) => {
       const value = control.value;
-      if (!value) {
-        return null;
-      }
-
-      const hasLetters = /[a-zA-Z]+/.test(value);
-      const hasNumbers = /\d+/.test(value);
-      const hasSymbols = /[#$-/:-?{-~!"^_@`\[\]]/.test(value);
-
-      const isSingleType =
-        [hasLetters, hasNumbers, hasSymbols].filter((item) => !!item).length === 1;
-
-      if (value.length < 8 || isSingleType) {
-        return { strength: 'weak' };
-      } else if (hasLetters && hasNumbers && hasSymbols) {
-        return { strength: 'strong' };
-      } else {
-        return { strength: 'medium' };
-      }
+      return {strength: this.passwordStrengthService.getPasswordStrength(value)}
     };
   }
 }
